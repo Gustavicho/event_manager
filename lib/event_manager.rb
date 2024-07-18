@@ -20,7 +20,7 @@ def legislator_by_zipcode(zipcode)
   rescue StandardError => e
     puts ("Error: #{e}\nYou can find your representatives by visiting\n"+
       'www.commoncause.org/take-action/find-elected-officials').colorize :red
-    'Unknow'.colorize :yellow
+    'Unknow'.colorize :yellow # the returned value in case legis... not found
   end
 end
 
@@ -29,6 +29,8 @@ def clean_zipcode(zipcode)
 end
 
 puts 'EventManager initialized.'.colorize :green
+
+form_letter = File.read 'form_letter.html'
 
 contents = CSV.open(
   'event_attendees.csv',
