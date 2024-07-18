@@ -3,17 +3,7 @@
 require 'csv'
 
 def clean_zipcode(zipcode)
-  # if nil return a default code
-  zipcode = '00000' if zipcode.nil?
-
-  case zipcode.size
-  when 5 then nil # it's ok
-  # add 0 at start until size == 5
-  when 0..5 then zipcode = zipcode.rjust(5, '0')
-  # if > 5, return the first 5 nums
-  else zipcode = zipcode[0, 5] end
-
-  zipcode
+  zipcode.to_s.rjust(5, '0')[0, 5]
 end
 
 puts 'Event Manager Initialized!'
