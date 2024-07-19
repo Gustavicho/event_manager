@@ -18,9 +18,8 @@ def legislator_by_zipcode(zipcode)
     legislators_names = legislators.map(&:name)
     legislators_names.join(', ')
   rescue StandardError => e
-    puts ("Error: #{e}\nYou can find your representatives by visiting\n"+
-      'www.commoncause.org/take-action/find-elected-officials').colorize :red
-    'Unknow'.colorize :yellow # the returned value in case legis... not found
+    puts e.to_s.colorize :red
+    'You can find your representatives by visiting www.commoncause.org/take-action/find-elected-officials'
   end
 end
 
@@ -43,5 +42,8 @@ contents.each do |row|
   zipcode = clean_zipcode row[:zipcode]
   legislators = legislator_by_zipcode zipcode
 
-  puts "#{name.ljust(9)} -> #{zipcode}: #{legislators}"
+  personal_letter = form_letter.gsub('FIRST_NAME', name)
+  personal_letter.gsub!('LEGISLATORS', legislators)
+
+  puts personal_letter
 end
