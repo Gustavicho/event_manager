@@ -11,7 +11,7 @@ end
 
 def legislator_by_zipcode(zipcode)
   civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
-  civic_info.key = File.read('.gitignore/secret.key').strip
+  civic_info.key = File.read('secret.key').strip
 
   begin
     civic_info.representative_info_by_address(
