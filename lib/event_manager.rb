@@ -5,6 +5,10 @@ require 'erb'
 require 'colorize'
 require 'google/apis/civicinfo_v2'
 
+def clean_zipcode(zipcode)
+  zipcode.to_s.rjust(5, '0')[0, 5]
+end
+
 def legislator_by_zipcode(zipcode)
   civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
   civic_info.key = File.read('.gitignore/secret.key').strip
@@ -20,8 +24,14 @@ def legislator_by_zipcode(zipcode)
   end
 end
 
-def clean_zipcode(zipcode)
-  zipcode.to_s.rjust(5, '0')[0, 5]
+def save_letter(id, personal_letter)
+  Dir.mkdir 'output' unless Dir.exist? 'output'
+
+  filename = "output/thanks_#{id}.html"
+
+  File.open(filename, 'w') do |file|
+    file.puts personal_letter
+  end
 end
 
 puts 'EventManager initialized.'.colorize :green
@@ -36,11 +46,11 @@ contents = CSV.open(
 )
 
 contents.each do |row|
+  id = row[0]
   name = row[:first_name]
   zipcode = clean_zipcode row[:zipcode]
   legislators = legislator_by_zipcode zipcode
 
   personal_letter = erb_letter.result(binding)
-
-  puts personal_letter
+  save_letter id, personal_letter
 end
