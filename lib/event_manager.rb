@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'csv'
+require 'erb'
 require 'colorize'
 require 'google/apis/civicinfo_v2'
 
@@ -9,16 +10,12 @@ def legislator_by_zipcode(zipcode)
   civic_info.key = File.read('.gitignore/secret.key').strip
 
   begin
-    legislators = civic_info.representative_info_by_address(
+    civic_info.representative_info_by_address(
       address: zipcode,
       levels: 'country',
       roles: %w[legislatorUpperBody legislatorLowerBody]
-    )
-    legislators = legislators.officials
-    legislators_names = legislators.map(&:name)
-    legislators_names.join(', ')
-  rescue StandardError => e
-    puts e.to_s.colorize :red
+    ).officials
+  rescue StandardError
     'You can find your representatives by visiting www.commoncause.org/take-action/find-elected-officials'
   end
 end
@@ -29,7 +26,8 @@ end
 
 puts 'EventManager initialized.'.colorize :green
 
-form_letter = File.read 'form_letter.html'
+form_letter = File.read 'form_letter.erb'
+erb_letter = ERB.new form_letter
 
 contents = CSV.open(
   'event_attendees.csv',
@@ -42,8 +40,7 @@ contents.each do |row|
   zipcode = clean_zipcode row[:zipcode]
   legislators = legislator_by_zipcode zipcode
 
-  personal_letter = form_letter.gsub('FIRST_NAME', name)
-  personal_letter.gsub!('LEGISLATORS', legislators)
+  personal_letter = erb_letter.result(binding)
 
   puts personal_letter
 end
