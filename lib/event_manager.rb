@@ -9,6 +9,19 @@ def clean_zipcode(zipcode)
   zipcode.to_s.rjust(5, '0')[0, 5]
 end
 
+def clean_phone_num(phone_num)
+  cleaned = phone_num.gsub(/\D/, '')
+  return cleaned[1, 10] if cleaned.length == 11 && cleaned.start_with?('1')
+
+  cleaned
+end
+
+def valid_num?(phone_num)
+  return true if phone_num.size == 10
+  
+  false
+end
+
 def legislator_by_zipcode(zipcode)
   civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
   civic_info.key = File.read('secret.key').strip
@@ -46,11 +59,16 @@ contents = CSV.open(
 )
 
 contents.each do |row|
-  id = row[0]
-  name = row[:first_name]
-  zipcode = clean_zipcode row[:zipcode]
-  legislators = legislator_by_zipcode zipcode
+  # id = row[0]
+  # name = row[:first_name]
+  # zipcode = clean_zipcode row[:zipcode]
 
-  personal_letter = erb_letter.result(binding)
-  save_letter id, personal_letter
+  phone_num = clean_phone_num(row[:homephone])
+  is_valid = valid_num? phone_num
+
+  puts "#{phone_num}: #{is_valid}"
+  # legislators = legisla tor_by_zipcode zipcode
+
+  # personal_letter = erb_letter.result(binding)
+  # save_letter id, personal_letter
 end
